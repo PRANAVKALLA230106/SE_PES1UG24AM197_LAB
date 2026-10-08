@@ -20,18 +20,26 @@ class Board:
     def slide_line(line):
         values = [x for x in line if x]
         result = []
-        for value in values:
-            if result and result[-1] == value:
-                result[-1] *= 2  # intentional double-merge bug
+        gained = 0
+        i = 0
+        while i < len(values):
+            if i + 1 < len(values) and values[i] == values[i + 1]:
+                merged = values[i] * 2
+                result.append(merged)
+                gained += merged
+                i += 2
             else:
-                result.append(value)
-        return result + [0] * (SIZE - len(result))
+                result.append(values[i])
+                i += 1
+        return result + [0] * (SIZE - len(result)), gained
 
     def move_left(self):
         changed = False
         for r in range(SIZE):
             old = self.grid[r][:]
-            self.grid[r] = self.slide_line(old)
+            new, gained = self.slide_line(old)
+            self.grid[r] = new
+            self.score += gained
             changed |= old != self.grid[r]
         return changed
 
@@ -39,7 +47,9 @@ class Board:
         changed = False
         for r in range(SIZE):
             old = self.grid[r][:]
-            self.grid[r] = list(reversed(self.slide_line(list(reversed(old)))))
+            new, gained = self.slide_line(list(reversed(old)))
+            self.grid[r] = list(reversed(new))
+            self.score += gained
             changed |= old != self.grid[r]
         return changed
 
@@ -47,9 +57,10 @@ class Board:
         changed = False
         for c in range(SIZE):
             old = [self.grid[r][c] for r in range(SIZE)]
-            new = self.slide_line(old)
+            new, gained = self.slide_line(old)
             for r in range(SIZE):
                 self.grid[r][c] = new[r]
+            self.score += gained
             changed |= old != new
         return changed
 
@@ -57,9 +68,11 @@ class Board:
         changed = False
         for c in range(SIZE):
             old = [self.grid[r][c] for r in range(SIZE)]
-            new = list(reversed(self.slide_line(list(reversed(old)))))
+            new, gained = self.slide_line(list(reversed(old)))
+            new = list(reversed(new))
             for r in range(SIZE):
                 self.grid[r][c] = new[r]
+            self.score += gained
             changed |= old != new
         return changed
 
