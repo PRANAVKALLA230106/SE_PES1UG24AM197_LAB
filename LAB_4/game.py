@@ -40,7 +40,7 @@ class Game:
             if key == "u":
                 print("Undo is not implemented yet.")
                 continue
-            if key not in "wasd":
+            if key not in ("w", "a", "s", "d"):
                 print("Use W/A/S/D.")
                 continue
             if self.move(key):
