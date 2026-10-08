@@ -22,10 +22,15 @@ class Game:
         if key not in moves:
             return False
         snapshot = (copy.deepcopy(self.board.grid), self.board.score)
+        score_before = self.board.score
         changed = moves[key]()
         if changed:
+            gained = self.board.score - score_before
             self.history = [snapshot]
             self.board.add_random_tile()
+            print(f"Merged! +{gained}" if gained else "Moved.")
+        else:
+            print("No move.")
         return changed
 
     def undo(self):
@@ -54,7 +59,7 @@ class Game:
                     print("Nothing to undo.")
                 continue
             if key not in ("w", "a", "s", "d"):
-                print("Use W/A/S/D.")
+                print("No move. Use W/A/S/D.")
                 continue
             if self.move(key):
                 self.best_score = max(self.best_score, self.board.score)
