@@ -1,3 +1,5 @@
+import copy
+
 from board import Board
 
 
@@ -19,10 +21,20 @@ class Game:
                  "w": self.board.move_up, "s": self.board.move_down}
         if key not in moves:
             return False
+        snapshot = (copy.deepcopy(self.board.grid), self.board.score)
         changed = moves[key]()
         if changed:
+            self.history = [snapshot]
             self.board.add_random_tile()
         return changed
+
+    def undo(self):
+        if not self.history:
+            return False
+        grid, score = self.history.pop()
+        self.board.grid = grid
+        self.board.score = score
+        return True
 
     def run(self):
         print("2048 — W/A/S/D to move, U to undo, Q to quit.")
@@ -38,7 +50,8 @@ class Game:
             if key == "q":
                 return
             if key == "u":
-                print("Undo is not implemented yet.")
+                if not self.undo():
+                    print("Nothing to undo.")
                 continue
             if key not in ("w", "a", "s", "d"):
                 print("Use W/A/S/D.")
